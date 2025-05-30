@@ -24,7 +24,7 @@ class DvanySpider(scrapy.Spider):
                 'link': lite.css('link::attr(href)').get()
             }
 
-        # Обрабатываем текущую страницу
+        # Обрабатываем текущую страницу 1
         yield {'page_data': dict1}
 
         # Ищем ссылку на следующую страницу
