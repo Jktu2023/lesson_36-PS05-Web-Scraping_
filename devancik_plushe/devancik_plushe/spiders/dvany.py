@@ -3,9 +3,14 @@
 # *Можно попробовать сделать это на другом сайте с продажей источников освещения
 # В поле для ответа загрузи ссылку на Git.
 
+# Попробуйте спарсить данные с сайта divan.ru, как в прошлом домашнем задании (можно использовать либо Scrapy,
+# либо selenium), но теперь ещё и сохраните информацию в csv файл.
+# К дз прикрепляем ссылку на репозиторий с файлом csv и кодом.
 
 
 import scrapy
+import csv
+print(1)
 
 class DvanySpider(scrapy.Spider):
     name = "dvany"
@@ -14,6 +19,7 @@ class DvanySpider(scrapy.Spider):
 
     def parse(self, response):
         dict1 = {}  # создаем словарь
+        pars_data = []
         lites = response.css('div.lsooF') # выбираем нужные блоки
 
         for idx, lite in enumerate(lites): # перебираем вместе с индексом
@@ -24,14 +30,36 @@ class DvanySpider(scrapy.Spider):
                 'link': lite.css('link::attr(href)').get()
             }
 
+            print()
+            print('name', lite.css('span::text').get())
+            print()
+
+            n = dict1[idx]['name']
+
+            p = dict1[idx]['price']
+
+            l = dict1[idx]['link']
+            pars_data.append([n, p, l])
+
+
+
         # Обрабатываем текущую страницу 1
         yield {'page_data': dict1}
 
         # Ищем ссылку на следующую страницу
         next_page = response.css('a.next::attr(href)').get()  # предполагается, что есть такая ссылка
         if next_page:
+            # pars_data.append(dict1)
             yield response.follow(next_page, callback=self.parse)
 
+        with open("lits.csv", 'w', newline='', encoding='utf-8') as file:
+            # Используем модуль csv и настраиваем запись данных в виде таблицы
+            # Создаём объект
+            writer = csv.writer(file)
+            # Создаём первый ряд
+            writer.writerow(['Название светильника', 'цена (руб.)',  'ссылка '])
+            # Прописываем использование списка как источника для рядов таблицы
+            writer.writerows(pars_data)
 
 
 
